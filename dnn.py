@@ -10,7 +10,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 ####################################################################
 bs = 128
 lr = 0.001
-num_epochs=100
+num_epochs=20
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -79,9 +79,6 @@ model = tf.keras.models.Sequential([
 
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(512, activation="relu"),
-    tf.keras.layers.Dropout(0.5),
-    tf.keras.layers.Dense(64, activation="relu"),
-    tf.keras.layers.Dropout(0.5),
     tf.keras.layers.Dense(26, activation="sigmoid"),
 ])
 
