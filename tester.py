@@ -45,8 +45,8 @@ TF_RESULT= "./tf_result"
 tf_model = tf.keras.models.load_model(TF_RESULT)
 
 print("TF native model start...")
-for idx, (x, _) in enumerate(data_test):
-    tf_model.predict(x)
+for idx, (x, result) in enumerate(data_test):
+    y = tf_model.predict(x)
     if idx > len(test_images):
         break
     
@@ -62,9 +62,10 @@ trt_model = tf.saved_model.load(
 infer = trt_model.signatures['serving_default']
 
 print("TRT accelerated model start...")
-for idx, (x, _) in enumerate(data_test):
+for idx, (x, result) in enumerate(data_test):
     x = tf.constant(x)
     y = infer(x)
+    print(y, result)
     if idx > len(test_images):
         break
     
