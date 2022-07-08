@@ -80,8 +80,6 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(512, activation="relu"),
     tf.keras.layers.Dropout(0.5),
-    tf.keras.layers.Dense(128, activation="relu"),
-    tf.keras.layers.Dropout(0.5),
     tf.keras.layers.Dense(64, activation="relu"),
     tf.keras.layers.Dropout(0.5),
     tf.keras.layers.Dense(26, activation="sigmoid"),
