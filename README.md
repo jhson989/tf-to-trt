@@ -30,4 +30,4 @@ The sample model is trained on sign language MNIST[1] dataset.
   
   
 ## Reference
-[1] https://www.kaggle.com/datasets/datamunge/sign-language-mnist [accessed 7 17, 2022]
+[1] https://www.kaggle.com/datasets/datamunge/sign-language-mnist [accessed July 17, 2022]

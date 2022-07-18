@@ -1,4 +1,4 @@
-import os, csv, time
+import os, csv, time, math
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -55,32 +55,32 @@ trt_infer = trt_model.signatures['serving_default']
 ####################################################################
 ### Inference time test : TF native model
 ####################################################################
-#print("\n\n==========================================================")
-#print("TF native model started...")
-#start_time = time.time()
-#for idx, (x, result) in enumerate(data_test):
-#    y = tf_model.predict(x)
-#    if idx > len(test_images):
-#        break
-#end_time = time.time()
-#print(" -- elapsed time : %.3f s [%d images]" % (end_time-start_time, len(test_images)))
-#
+print("\n\n==========================================================")
+print("TF native model started...")
+start_time = time.time()
+for idx, (x, result) in enumerate(data_test):
+    y = tf_model.predict(x)
+    if idx > len(test_images):
+        break
+end_time = time.time()
+print(" -- elapsed time : %.3f s [%d images]" % (end_time-start_time, len(test_images)))
+
 
 
 ####################################################################
 ### Inference time test : TRT accelerated model
 ####################################################################
-#print("\n\n==========================================================")
-#print("TRT accelerated model started...")
-#start_time = time.time()
-#for idx, (x, result) in enumerate(data_test):
-#    x = tf.constant(x)
-#    y = trt_infer(x)
-#    if idx > len(test_images):
-#        break
-#end_time = time.time()
-#print(" -- elapsed time : %.3f s [%d images]" % (end_time-start_time, len(test_images)))
-#
+print("\n\n==========================================================")
+print("TRT accelerated model started...")
+start_time = time.time()
+for idx, (x, result) in enumerate(data_test):
+    x = tf.constant(x)
+    y = trt_infer(x)
+    if idx > len(test_images):
+        break
+end_time = time.time()
+print(" -- elapsed time : %.3f s [%d images]" % (end_time-start_time, len(test_images)))
+
 
 
 ####################################################################
@@ -89,13 +89,15 @@ trt_infer = trt_model.signatures['serving_default']
 print("\n\n==========================================================")
 print("Test for inference accuracy check started...")
 for idx, (x, result) in enumerate(data_test):
-    tf_y = tf_model.predict(x)
+    tf_y = tf_model.predict(x).tolist()[0]
     trt_x = tf.constant(x)
-    trt_y = trt_infer(trt_x)["dense_1"].numpy()
+    trt_y = trt_infer(trt_x)["dense_1"].numpy().tolist()[0]
 
-    if (tf_y != trt_y).all():
+    results = [math.isclose(tf_value, trt_value, rel_tol=0.001, abs_tol=0.0001) for tf_value, trt_value in zip(tf_y, trt_y)]
+    if not all(results) :
         print(tf_y)
         print(trt_y)
+        print(results)
         print("Error occurred!!")
         break
 
