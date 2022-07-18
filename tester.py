@@ -1,18 +1,20 @@
-import os, csv
+import os, csv, time
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-    try:
-        tf.config.experimental.set_memory_growth(gpus[0], True)
-    except RuntimeError as e:
-        print(e)
 
 
 ####################################################################
-### Data
+### Set up GPU environment
+####################################################################
+gpus = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
+
+
+
+####################################################################
+### Load data
 ####################################################################
 TEST_FILE = "./mnist/sign_mnist_test.csv"
 
@@ -39,32 +41,64 @@ data_test = transform_test.flow(x=test_images, y=test_labels, batch_size=1)
 
 
 ####################################################################
-### TF native model
+### Load models
 ####################################################################
-TF_RESULT= "./tf_result"
-tf_model = tf.keras.models.load_model(TF_RESULT)
+TF_MODEL_PATH= "./tf_result"
+tf_model = tf.keras.models.load_model(TF_MODEL_PATH)
 
-print("TF native model start...")
+TRT_MODEL_PATH= "./trt_result"
+trt_model = tf.saved_model.load(TRT_MODEL_PATH, tags=['serve'])
+trt_infer = trt_model.signatures['serving_default']
+
+
+
+####################################################################
+### Inference time test : TF native model
+####################################################################
+#print("\n\n==========================================================")
+#print("TF native model started...")
+#start_time = time.time()
+#for idx, (x, result) in enumerate(data_test):
+#    y = tf_model.predict(x)
+#    if idx > len(test_images):
+#        break
+#end_time = time.time()
+#print(" -- elapsed time : %.3f s [%d images]" % (end_time-start_time, len(test_images)))
+#
+
+
+####################################################################
+### Inference time test : TRT accelerated model
+####################################################################
+#print("\n\n==========================================================")
+#print("TRT accelerated model started...")
+#start_time = time.time()
+#for idx, (x, result) in enumerate(data_test):
+#    x = tf.constant(x)
+#    y = trt_infer(x)
+#    if idx > len(test_images):
+#        break
+#end_time = time.time()
+#print(" -- elapsed time : %.3f s [%d images]" % (end_time-start_time, len(test_images)))
+#
+
+
+####################################################################
+### Inference accuracy test
+####################################################################
+print("\n\n==========================================================")
+print("Test for inference accuracy check started...")
 for idx, (x, result) in enumerate(data_test):
-    y = tf_model.predict(x)
-    if idx > len(test_images):
+    tf_y = tf_model.predict(x)
+    trt_x = tf.constant(x)
+    trt_y = trt_infer(trt_x)["dense_1"].numpy()
+
+    if (tf_y != trt_y).all():
+        print(tf_y)
+        print(trt_y)
+        print("Error occurred!!")
         break
-    
 
-####################################################################
-### TRT accelerated model
-####################################################################
-
-TRT_RESULT= "./trt_result"
-    
-trt_model = tf.saved_model.load(
-    TRT_RESULT, tags=['serve'])
-infer = trt_model.signatures['serving_default']
-
-print("TRT accelerated model start...")
-for idx, (x, result) in enumerate(data_test):
-    x = tf.constant(x)
-    y = infer(x)
     if idx > len(test_images):
+        print("No inference error")
         break
-    

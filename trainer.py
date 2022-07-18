@@ -10,13 +10,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 bs = 128
 lr = 0.001
 num_epochs=20
-
 gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-    try:
-        tf.config.experimental.set_memory_growth(gpus[0], True)
-    except RuntimeError as e:
-        print(e)
+tf.config.experimental.set_memory_growth(gpus[0], True)
 
 ####################################################################
 ### Data
