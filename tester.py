@@ -1,4 +1,4 @@
-import csv
+import os, csv
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -56,7 +56,7 @@ for idx, (x, result) in enumerate(data_test):
 ####################################################################
 
 TRT_RESULT= "./trt_result"
-
+    
 trt_model = tf.saved_model.load(
     TRT_RESULT, tags=['serve'])
 infer = trt_model.signatures['serving_default']
@@ -65,7 +65,6 @@ print("TRT accelerated model start...")
 for idx, (x, result) in enumerate(data_test):
     x = tf.constant(x)
     y = infer(x)
-    print(y, result)
     if idx > len(test_images):
         break
     

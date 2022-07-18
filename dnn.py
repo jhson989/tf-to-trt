@@ -1,4 +1,4 @@
-import csv
+import os, csv
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -21,7 +21,7 @@ if gpus:
 ####################################################################
 ### Data
 ####################################################################
-SAVE_PATH = "./result"
+SAVE_PATH = "./tf_result"
 TRAIN_FILE = "./mnist/sign_mnist_train.csv"
 TEST_FILE = "./mnist/sign_mnist_test.csv"
 
@@ -100,4 +100,7 @@ history = model.fit(
 ####################################################################
 ### Save model
 ####################################################################
+if not os.path.exists(os.path.join(os.getcwd(), SAVE_PATH)):
+    os.makedirs(os.path.join(os.getcwd(), SAVE_PATH))
+    
 model.save(SAVE_PATH)
