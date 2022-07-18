@@ -20,9 +20,9 @@ The sample model is trained on sign language MNIST[1] dataset.
     - mkdir mnist && cd mnist
     - [download "sign_mnist_train.csv" and "sign_mnist_test.csv" from [1]]
 - Train and save a TensorFlow model
-    - python trainer.py [result: tf_result/model.pb]
+    - python trainer.py [result: tf_result/saved_model.pb]
 - Convert a saved TF model to a TRT model
-    - python converter.py [result: trt_result/model.pb]
+    - python converter.py [result: trt_result/saved_model.pb]
 - Compare inference performance bewteen the TR and TRT models
     - python tester.py
 
